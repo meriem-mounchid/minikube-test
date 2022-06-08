@@ -55,10 +55,10 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 # helm repo list
 
     ### TEST 00 ###
-helm install postgresql-test --set auth.postgresPassword=root bitnami/postgresql
+helm install postgresql-dev --set auth.postgresPassword=root bitnami/postgresql
 export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgresql-test -o jsonpath="{.data.postgres-password}" | base64 -d)
 echo $POSTGRES_PASSWORD
-kubectl run postgresql-test-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:14.3.0-debian-10-r22 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
-      --command -- psql --host postgresql-test -U postgres -d postgres -p 5432
+kubectl run postgresql-dev-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:14.3.0-debian-10-r22 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+      --command -- psql --host postgresql-dev -U postgres -d postgres -p 5432
 # kubectl get all
 # \l
