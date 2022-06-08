@@ -12,7 +12,7 @@ sudo usermod -aG sudo misaki
 ### Install KVM on Ubuntu ###
 sudo apt-get install apt-transport-https
 sudo apt-get -y upgrade
-sudo apt -y install qemu-kvm libvirt-dev bridge-utils virtinst bridge-utils libosinfo-bin libguestfs-tools virt-top
+sudo apt -y install qemu-kvm libvirt-test bridge-utils virtinst bridge-utils libosinfo-bin libguestfs-tools virt-top
 sudo modprobe vhost_net
 sudo lsmod | grep vhost
 echo "vhost_net" | sudo tee -a /etc/modules
@@ -36,15 +36,29 @@ chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin/kubectl
 # kubectl config get-contexts
 
+### Install Helm ###
+brew install helm
 
 ### Starting minikube on Ubuntu ###
+
 minikube delete --all --purge
-minikube start --driver=virtualbox --no-vtx-check
-
-sudo chown -R $USER $HOME/.minikube
-sudo apt-get install -y conntrack
-minikube start --driver=none
-
+minikube start
 minikube status
-sudo rm -rf /tmp/minikube.*
-sudo rm -rf /tmp/juju-mk*
+
+# helm repo remove ..
+# helm delete ..
+# helm search repo bitnami
+
+
+# kubectl get pods -A
+helm repo add bitnami https://charts.bitnami.com/bitnami
+# helm repo list
+
+    ### TEST 00 ###
+helm install postgresql-test --set auth.postgresPassword=root bitnami/postgresql
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgresql-test -o jsonpath="{.data.postgres-password}" | base64 -d)
+echo $POSTGRES_PASSWORD
+kubectl run postgresql-test-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:14.3.0-debian-10-r22 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+      --command -- psql --host postgresql-test -U postgres -d postgres -p 5432
+# kubectl get all
+# \l
