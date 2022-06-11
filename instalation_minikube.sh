@@ -52,6 +52,7 @@ minikube status
 
 # kubectl get pods -A
 helm repo add bitnami https://charts.bitnami.com/bitnami
+
 # helm repo list
 
     ### TEST 00 ###
@@ -62,3 +63,46 @@ kubectl run postgresql-dev-client --rm --tty -i --restart='Never' --namespace de
       --command -- psql --host postgresql-dev -U postgres -d postgres -p 5432
 # kubectl get all
 # \l
+
+    ### helm nginx ###
+### Deploy nginx Ingress Controller (Yaml & Helm)
+# kubectl get svc
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+
+helm repo add stable https://charts.helm.sh/stable
+helm create hello-world
+kubectl create namespace dev 
+
+    ### NGINX Ingress Controller via Helm ###
+minikube addons enable ingress
+# kubectl get pods -n ingress-nginx
+
+helm repo add nginx-stable https://helm.nginx.com/stable
+helm repo update
+
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=120s
+
+    ### Local Testing ###
+kubectl create deployment mynginx --image=httpd --port=80
+kubectl expose deployment mynginx
+
+kubectl create ingress mynginx-localhost --class=nginx \
+  --rule="mynginx.localdev.me/*=mynginx:80"
+
+kubectl port-forward --namespace=ingress-nginx service/ingress-nginx-controller 8080:80
+
+    ### Online Testing ###
+# kubectl get service ingress-nginx-controller --namespace=ingress-nginx
+minikube tunnel
+kubectl create deployment mydemo --image=httpd --port=80
+kubectl expose deployment mydemo --type=LoadBalancer --port=8081 --name=my-service2
+# minikube service --url DEMO
+# minikube tunnel --cleanup
+# kubectl delete services NAME 
+# kubectl get deployments
+## minikube start --extra-config=apiserver.service-node-port-range=1-65535
+# kubectl delete deploy
