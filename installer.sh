@@ -11,7 +11,7 @@ minikube addons enable ingress
 #### Deploying PostgreSQL with Helm Chart ####
 
 # Add Helm repository by Bitnami
-helm repo add bitnami <https://charts.bitnami.com/bitnami>
+helm repo add bitnami https://charts.bitnami.com/bitnami
 
 # Update Helm index charts
 helm repo update
@@ -78,7 +78,8 @@ startupProbe:
   successThreshold: 1
   failureThreshold: 1
 
-helm install postgresql-dev --set volumePermissions.enabled=true -f values.yaml bitnami/postgresql
+helm install postgresql-test --set volumePermissions.enabled=true -f values.yaml bitnami/postgresql
+helm install postgresql-dev -f values.yaml bitnami/postgresql
 
 # Checking pods
 kubectl get pods
@@ -93,9 +94,30 @@ kubectl run postgresql-dev-client --rm --tty -i --namespace default --image dock
 \conninfo
 # Logout from PostgreSQL shell
 exit
-
+#10.96.208.237") at port "5432".
 
 ##### Nginx Ingress Controller ####
 minikube addons enable ingress
 kubectl get pods -n ingress-nginx
 
+kubectl port-forward --namespace default svc/postgresql-dev 5432:5432
+
+#### POSTGRESS ####
+PGPASSWORD="$POSTGRES_PASSWORD" psql --host 172.17.0.4 -U app1 -d app_db -p 5432
+psql --host 10.109.168.173 -U app1 -d app_db -p 5432
+psql -h localhost -U app1 -d app_db -p 5432
+
+psql -h postgresql-dev-0 -U app1 --password -p 5432 app_db
+
+
+postgres -D /usr/local/var/postgres
+
+psql -h /tmp/ postgres
+
+  # postgresPassword: "StrongPassword"
+  # username: "app1"
+  # password: "AppPassword"
+  # database: "app_db"
+
+kubectl patch svc postgresql-dev --type='json' -p '[{"op":"replace","path":"/spec/type","value":"NodePort"}]'
+kubectl exec -it postgresql-dev-0 -- psql -h postgresql-dev-0 -U app1 --password -p 5432 app_db
