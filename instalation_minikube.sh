@@ -106,3 +106,16 @@ kubectl expose deployment mydemo --type=LoadBalancer --port=8081 --name=my-servi
 # kubectl get deployments
 ## minikube start --extra-config=apiserver.service-node-port-range=1-65535
 # kubectl delete deploy
+
+
+kubectl create deployment postgresql-dev --image=postgresql-dev-0
+kubectl expose deployment postgresql-dev --type=NodePort --port=8080
+minikube service web --url
+
+
+#### ADD ADMINER ####
+helm repo add mogaal https://mogaal.github.io/helm-charts/
+helm install my-adminer mogaal/adminer
+export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services my-adminer)
+export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+echo http://$NODE_IP:$NODE_PORT
