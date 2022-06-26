@@ -115,7 +115,26 @@ minikube service web --url
 
 #### ADD ADMINER ####
 helm repo add mogaal https://mogaal.github.io/helm-charts/
-helm install my-adminer mogaal/adminer
-export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services my-adminer)
+kubectl create namespace adminer
+helm install --namespace adminer adminer-dev mogaal/adminer
+
+helm install adminer-test mogaal/adminer
+
+export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services adminer-dev)
 export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
 echo http://$NODE_IP:$NODE_PORT
+# cat /etc/hosts 
+
+
+kubectl run postgresql-dev --image=bitnami/postgresql  --port=80
+kubectl create deployment postgresql-dev --image=service/postgresql-dev
+kubectl expose deployment postgresql-dev --type=NodePort --port=8080
+# kubectl describe ingress ..
+
+#### Create NS + Install PgAdmine ####
+
+kubectl create ns postgres
+kubectl apply -f pgadmine.yaml
+
+kubectl patch -n adminer svc adminer-dev --type='json' -p '[{"op":"replace","path":"/spec/type","value":"ClusterIP"}]'
+kubectl patch -n postgres svc postgres --type='json' -p '[{"op":"replace","path":"/spec/type","value":"ClusterIP"}]'
