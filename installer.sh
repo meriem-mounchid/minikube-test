@@ -124,6 +124,11 @@ CREATE TABLE COMPANY(
    ADDRESS        CHAR(50),
    SALARY         REAL
 );
+CREATE TABLE DEPARTMENT(
+   ID INT PRIMARY KEY      NOT NULL,
+   DEPT           CHAR(50) NOT NULL,
+   EMP_ID         INT      NOT NULL
+);
 CREATE TABLE TEST(
    ID INT PRIMARY KEY      NOT NULL,
    DEPT           CHAR(50) NOT NULL,
@@ -241,8 +246,8 @@ spec:
 # kubectl apply -f postgres-service.yaml -n postgres
 
 # Test:
-kubectl exec -it -n postgres postgres-75b8fd84f-kmswm -- psql -h localhost -U appuser --password -p 5432 appdb
-psql -h 192.168.59.138 -U appuser --password -p 31829 appdb
+kubectl exec -it -n postgres postgres-75b8fd84f-8v2r8 -- psql -h localhost -U appuser --password -p 5432 appdb
+psql -h 192.168.59.142 -U appuser --password -p 32555 appdb
 Password: strongpasswordapp
 
 ---
@@ -268,3 +273,4 @@ spec:
 
 # kubectl apply -f ingress-controller.yaml -n postgres
 minikube addons enable ingress
+minikube tunnel

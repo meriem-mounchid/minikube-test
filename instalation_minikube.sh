@@ -116,7 +116,7 @@ minikube service web --url
 #### ADD ADMINER ####
 helm repo add mogaal https://mogaal.github.io/helm-charts/
 kubectl create namespace adminer
-helm install --namespace adminer adminer-dev mogaal/adminer
+helm install --namespace postgres adminer-dev mogaal/adminer
 
 helm install adminer-test mogaal/adminer
 
@@ -138,3 +138,6 @@ kubectl apply -f pgadmine.yaml
 
 kubectl patch -n adminer svc adminer-dev --type='json' -p '[{"op":"replace","path":"/spec/type","value":"ClusterIP"}]'
 kubectl patch -n postgres svc postgres --type='json' -p '[{"op":"replace","path":"/spec/type","value":"ClusterIP"}]'
+
+# helm chart pstest
+# helm chart           
